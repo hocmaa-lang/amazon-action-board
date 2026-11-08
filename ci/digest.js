@@ -13,7 +13,8 @@ const crypto = require('crypto');
 
 const REPO = 'hocmaa-lang/amazon-action-board';
 const BOARD = 'https://hocmaa-lang.github.io/amazon-action-board/';
-const TO = (process.env.TO || 'erika,milet,ariel,dvir').split(',');
+const TEAM = ['erika', 'milet', 'ariel', 'dvir'];
+const TO = (process.env.TO || TEAM.join(',')).split(',');
 const NAMES = { erika: 'Erika', milet: 'Milet', ariel: 'Ariel', dvir: 'Dvir' };
 const TZ = 'Asia/Jerusalem';
 
@@ -103,7 +104,7 @@ const fmt = iso => { const [y, m, d] = iso.split('-'); return `${+d} ${['Jan','F
 
   const TD = 'padding:6px 8px;border:1px solid #ddd;vertical-align:top';
   const TH = TD + ';background:#f0f2f1;text-align:left';
-  const people = TO.map(k => {
+  const people = TEAM.map(k => {
     const rows = open.filter(r => r.who.includes(k)).sort(byDue);
     return { k, rows, late: rows.filter(r => r.d != null && r.d < 0).length, todayN: rows.filter(r => r.d === 0).length,
              week: rows.filter(r => r.d != null && r.d > 0 && r.d <= 7).length };
