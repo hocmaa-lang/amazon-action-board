@@ -1,0 +1,32 @@
+name: Daily status mail
+# 07:00 Israel time. GitHub cron is UTC and Israel moves between UTC+2 and UTC+3,
+# so both hours fire and ci/digest.js sends only from the one that is 07:00 in Israel.
+on:
+  schedule:
+    - cron: '0 4 * * *'
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      to:
+        description: 'Recipients (comma separated: erika,milet,ariel,dvir)'
+        default: 'dvir'
+permissions:
+  contents: read
+jobs:
+  mail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { sparse-checkout: ci, ref: main }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node ci/digest.js
+        env:
+          DATAKEY: ${{ secrets.DATAKEY }}
+          MAIL_URL: ${{ secrets.MAIL_URL }}
+          MAIL_KEY: ${{ secrets.MAIL_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          SCHED: ${{ github.event.schedule }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+          TO: ${{ github.event.inputs.to || 'erika,milet,ariel,dvir' }}
